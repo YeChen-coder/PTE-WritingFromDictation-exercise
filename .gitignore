@@ -1,0 +1,42 @@
+# Python/runtime artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local logs and process files
+*.log
+*.pid
+server.out.log
+server.err.log
+
+# Local practice materials and generated audio
+materials/
+*.mp3
+*.wav
+*.webm
+*.m4a
+*.ogg
+*.flac
+
+# Keep source folders without publishing private audio assets
+!app/assets/.gitkeep
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

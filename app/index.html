@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PTE Core WFD Trainer</title>
+    <link rel="stylesheet" href="./styles.css?v=20260529-sfx2" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">PTE Core • Write from Dictation</p>
+          <h1>听一遍，马上写，立刻看到差在哪里。</h1>
+          <p class="hero-text">
+            这个练习器会自动连播下一题，限时收卷，并把漏词、拼写和替换错误直接高亮出来。
+          </p>
+        </div>
+        <div class="hero-badges">
+          <span class="badge">Listening 部分</span>
+          <span class="badge">3-4 题 / 正式考试</span>
+          <span class="badge">按词计分</span>
+          <span class="badge">不能回放原题</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel trainer-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">训练控制</p>
+              <h2>本地题库练习</h2>
+            </div>
+            <p id="dataSummary" class="panel-note">正在读取题库…</p>
+          </div>
+
+          <p id="resumeSummary" class="panel-note resume-note">目前没有未完成进度。</p>
+
+          <div class="control-grid">
+            <label class="field">
+              <span>练习模式</span>
+              <select id="practiceMode">
+                <option value="all">全部题目</option>
+                <option value="mistakes">只练错题</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>音频结束后倒计时（秒）</span>
+              <input id="answerSeconds" type="number" min="5" max="60" step="1" value="12" />
+            </label>
+
+            <label class="toggle-field">
+              <input id="autoAdvance" type="checkbox" checked />
+              <span>全对后自动进入下一题</span>
+            </label>
+          </div>
+
+          <div class="sound-row">
+            <label class="toggle-field sound-toggle">
+              <input id="soundEnabled" type="checkbox" checked />
+              <span>激励音效</span>
+            </label>
+
+            <label class="field volume-field">
+              <span>音效音量</span>
+              <input id="soundVolume" type="range" min="0" max="100" step="1" value="45" />
+            </label>
+
+            <div class="status-card volume-card">
+              <span class="status-label">当前音量</span>
+              <strong id="soundVolumeLabel">45%</strong>
+            </div>
+          </div>
+
+          <div class="jump-row">
+            <label class="field jump-field">
+              <span>跳转到指定题号</span>
+              <input id="jumpQuestionInput" type="number" min="1" step="1" placeholder="比如 51" />
+            </label>
+            <button id="jumpButton" class="secondary-button">跳转</button>
+          </div>
+
+          <div class="button-row">
+            <button id="startButton" class="primary-button">开始训练</button>
+            <button id="startMistakesButton" class="secondary-button">开始错题顺练</button>
+            <button id="resumeButton" class="secondary-button">继续上次进度</button>
+            <button id="playButton" class="secondary-button">播放当前题</button>
+            <button id="submitButton" class="secondary-button">提前判题</button>
+            <button id="retryButton" class="ghost-button">重做本题</button>
+            <button id="nextButton" class="ghost-button">下一题</button>
+          </div>
+
+          <div class="status-grid">
+            <div class="status-card">
+              <span class="status-label">当前题目</span>
+              <strong id="questionLabel">未开始</strong>
+            </div>
+            <div class="status-card">
+              <span class="status-label">当前状态</span>
+              <strong id="phaseLabel">等待开始</strong>
+            </div>
+            <div class="status-card">
+              <span class="status-label">倒计时</span>
+              <strong id="timerLabel">--</strong>
+            </div>
+            <div class="status-card">
+              <span class="status-label">错题本</span>
+              <strong id="mistakeCountLabel">0 题</strong>
+            </div>
+          </div>
+
+          <label class="answer-panel" for="answerInput">
+            <span>你的听写</span>
+            <textarea
+              id="answerInput"
+              placeholder="点击“开始训练”后，在这里边听边打。"
+              spellcheck="false"
+            ></textarea>
+          </label>
+        </section>
+
+        <section class="panel review-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">结果反馈</p>
+              <h2>逐词对比</h2>
+            </div>
+            <p id="resultSummary" class="panel-note">判题后，这里会显示本题结果。</p>
+          </div>
+
+          <div class="comparison-stack">
+            <section class="comparison-card">
+              <p class="comparison-label">标准答案</p>
+              <div id="expectedTokens" class="token-line empty-state">播放并提交后显示</div>
+            </section>
+
+            <section class="comparison-card">
+              <p class="comparison-label">你的输入</p>
+              <div id="actualTokens" class="token-line empty-state">播放并提交后显示</div>
+            </section>
+          </div>
+
+          <div class="issue-area">
+            <div>
+              <p class="comparison-label">错误定位</p>
+              <ul id="issueList" class="issue-list">
+                <li class="empty-line">当前还没有错误信息。</li>
+              </ul>
+            </div>
+            <div>
+              <p class="comparison-label">格式提醒</p>
+              <ul id="formatList" class="issue-list subtle-list">
+                <li class="empty-line">这里会提醒大小写和标点等细节。</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel mistake-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">错题管理</p>
+              <h2>错题本</h2>
+            </div>
+            <p class="panel-note">自动记录题号，方便复盘和重练。</p>
+          </div>
+
+          <div class="button-row compact-row">
+            <button id="copyMistakesButton" class="secondary-button">复制题号</button>
+            <button id="clearMistakesButton" class="ghost-button danger-button">清空错题本</button>
+          </div>
+
+          <div id="mistakeList" class="mistake-list">
+            <p class="empty-line">目前还没有记录到错题。</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260529-sfx2"></script>
+  </body>
+</html>
